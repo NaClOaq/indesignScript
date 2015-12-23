@@ -91,6 +91,14 @@ Msg.prototype = {
 
 
 
+
+
+
+
+
+
+
+
 function Tag(){
     this.q = '&lt;';
     this.p = '&gt;';
@@ -108,6 +116,38 @@ Tag.prototype = {
         //ここに処理
     }
 };
+
+Tag.prototype = {
+    addTag : function(tag,text){
+        var tagText = this.q+tag+this.p+text+this.q+'/'+tag+this.p;
+        return tagText;
+    },
+    addBrake: function(text){
+        var tagText = text+this.q+'br'+this.p;
+        return tagText;
+    },
+    addLink: function(URL,text){
+        //ここに処理
+    }
+};
+
+
+
+
+function AddHTML(paragraph, tag, clas){
+    
+};
+
+
+var aaa = sel[0].paragraphs;
+var arr = []
+for (var i = 0; i < aaa.length; i++) {
+    arr[i] = aaa[i].appliedParagraphStyle.name;
+};
+alert(arr);
+
+
+
 
 
 
@@ -170,7 +210,7 @@ for (var i = 0; i < sel.length; i++) {
 };
 var msg = new Msg();
 // alert(msg.alert(elm));
-alert(msg.dialog(elm));
+// alert(msg.dialog(elm));
 
 
 
@@ -223,19 +263,19 @@ var ObjPosition = function(obj){
 };
 
 
-var putPosition = function(sel){
-    var position = [];
-    var text = [];
-    if(sel!=""){
-        for (i=0,j=sel.length; i<j; i++) {
-            position[i] = ObjPosition(sel[i]);
-            text[i] = sel[i].contents
-        }
-    }else{
-        alert("Select object!");
-    };
-    alert(position.join(','));
-}
+// var putPosition = function(sel){
+//     var position = [];
+//     var text = [];
+//     if(sel!=""){
+//         for (i=0,j=sel.length; i<j; i++) {
+//             position[i] = ObjPosition(sel[i]);
+//             text[i] = sel[i].contents
+//         }
+//     }else{
+//         alert("Select object!");
+//     };
+//     alert(position.join(','));
+// }
 
 
 

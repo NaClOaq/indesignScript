@@ -113,24 +113,23 @@ Tag.prototype = {
 
 
 
-function Character(){
-}
-Character.prototype = {
-    fontName :function(cha){return cha.appliedFont.name;},
-    fontSize : function(cha){return cha.pointSize;},
-    fontTest : function(cha){return cha.verticalScale},//倍率
-    fontCha : function(cha){return cha.contents}
-
-}
-
+// function Character(){
+// }
+// Character.prototype = {
+//     fontName :function(cha){return cha.appliedFont.name;},
+//     fontSize : function(cha){return cha.pointSize;},
+//     fontTest : function(cha){return cha.verticalScale},//倍率
+//     fontCha : function(cha){return cha.contents}
+// }
 
 
 
 
-var style = new Character();
+
+// var style = new Character();
 // alert(style.fontSize(sel[0].paragraphs[2].characters[8]));
-alert(style.fontTest(sel[0].paragraphs[2].characters[7]));
-alert(style.fontCha(sel[0].paragraphs[2].characters[7]));
+// alert(style.fontTest(sel[0].paragraphs[2].characters[7]));
+// alert(style.fontCha(sel[0].paragraphs[2].characters[7]));
 
 
 // function myerror(mess) { 
@@ -171,13 +170,14 @@ for (var i = 0; i < sel.length; i++) {
 };
 var msg = new Msg();
 // alert(msg.alert(elm));
+alert(msg.dialog(elm));
 
 
 
 
-var tag = new Tag();
-var test = tag.addTag('b','太字テキストです');
-alert(msg.alert(test));
+// var tag = new Tag();
+// var test = tag.addTag('b','太字テキストです');
+// alert(msg.alert(test));
 
 
 

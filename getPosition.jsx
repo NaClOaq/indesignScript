@@ -12,6 +12,7 @@ xmlModule.prototype = {
 
 function Obj(frame,mType){
     var s = frame.visibleBounds;
+    var adj = 5;
     this.y1 = s[0];
     this.x1 = s[1];
     this.y2 = s[2];
@@ -19,12 +20,14 @@ function Obj(frame,mType){
     this.h = Math.round(this.y2-this.y1);
     this.w = Math.round(this.x2-this.x1);
 
-    this.y1 = Math.round(this.y1);
-    this.x1 = Math.round(this.x1);
+    this.y1 = Math.round(this.y1)+adj;
+    this.x1 = Math.round(this.x1)+adj;
     this.y2 = this.y1 + this.h;
     this.x2 = this.x1 + this.w;
 
-    this.txt =frame.contents;
+    editPara = new EditPara(frame.paragraphs);
+    this.txt =editPara.addTag();
+
     this.moduleType = mType;
 }
 
@@ -76,6 +79,52 @@ Obj.prototype = {
 }
 
 
+
+function EditPara(paras){
+    this.paras = paras;
+    this.txt = '';
+    this.br = '&lt;br&gt';
+};
+EditPara.prototype = {
+    addTag : function(){
+        var type = this.paras[0].appliedParagraphStyle.name;
+        if(type.indexOf('Product') != -1){
+            this.tagDiv();
+        }else{
+            this.tagBr();
+        };
+        return this.txt;
+    },
+    tagBr : function(){
+        var p = '';
+        var pl = this.paras.length;
+        var tag = '&lt;br&gt;';
+        for (var i = 0; pl != 1 && pl > i; i++) {
+            if(pl-1 == i){tag = ''};
+            p = p + this.paras[i].contents;
+            p = p.replace(/(.)$/g,function(){return tag + arguments[1]});
+        };
+        this.txt = p
+    },
+    tagDiv : function(){
+        var p = '';
+        var pl = this.paras.length;
+        var sTag = '&lt;div&gt;';
+        var eTag = '&lt;/div&gt;';
+        for (var i = 0; pl != 1 && pl > i; i++) {
+            var tmp = this.paras[i].contents;
+            tmp = tmp.replace(/^/g,sTag);
+            if(0){tmp = tmp.replace(/(.)$/g,function(){return eTag + arguments[1]})
+            }else{tmp = tmp.replace(/$/g,eTag)};
+            p = p + tmp;
+        };
+        this.txt = p
+    }
+}
+
+
+
+
 function Msg(){};
 Msg.prototype = {
     dialog : function(elm){
@@ -88,6 +137,8 @@ Msg.prototype = {
         alert(elm);
     }
 }
+
+
 
 
 
@@ -108,6 +159,42 @@ Tag.prototype = {
         //ここに処理
     }
 };
+
+Tag.prototype = {
+    addTag : function(tag,text){
+        var tagText = this.q+tag+this.p+text+this.q+'/'+tag+this.p;
+        return tagText;
+    },
+    addBrake: function(text){
+        var tagText = text+this.q+'br'+this.p;
+        return tagText;
+    },
+    addLink: function(URL,text){
+        //ここに処理
+    }
+};
+
+
+
+
+
+
+
+
+var aaa = sel[0].paragraphs;
+var arr = []
+for (var i = 0; i < aaa.length; i++) {
+    arr[i] = aaa[i].appliedParagraphStyle.name;
+};
+// alert(arr);
+
+
+
+
+
+
+
+
 
 
 
@@ -223,19 +310,19 @@ var ObjPosition = function(obj){
 };
 
 
-var putPosition = function(sel){
-    var position = [];
-    var text = [];
-    if(sel!=""){
-        for (i=0,j=sel.length; i<j; i++) {
-            position[i] = ObjPosition(sel[i]);
-            text[i] = sel[i].contents
-        }
-    }else{
-        alert("Select object!");
-    };
-    alert(position.join(','));
-}
+// var putPosition = function(sel){
+//     var position = [];
+//     var text = [];
+//     if(sel!=""){
+//         for (i=0,j=sel.length; i<j; i++) {
+//             position[i] = ObjPosition(sel[i]);
+//             text[i] = sel[i].contents
+//         }
+//     }else{
+//         alert("Select object!");
+//     };
+//     alert(position.join(','));
+// }
 
 
 

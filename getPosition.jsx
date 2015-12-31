@@ -2,13 +2,19 @@
 // geometricBounds　ボーダーを含まない場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
 var sel = app.activeDocument.selection;
 
-var xmlModule = {};
-xmlModule.prototype = {
-
+function Character(){
 }
-
-
-
+Character.prototype = {
+    fontName :function(cha){return cha.appliedFont.name},
+    fontWeight :function(cha){return ~cha.appliedFont.name.indexOf('B')},// Boolean
+    fontStyle :function(cha){return cha.appliedCharacterStyle.name},
+    fontSize : function(cha){return cha.pointSize},
+    fontLeading :function(cha){return cha.leading},
+    fontScale : function(cha){return cha.verticalScale},//　倍率
+    fontCha : function(cha){return cha.contents},
+    fontDeco : function(cha){return cha.strikeThroughWeight},// 打ち消し線
+    fontColor :function(cha){return cha.fillColor.colorValue},
+}
 
 function Obj(frame,mType){
     var s = frame.visibleBounds;
@@ -19,23 +25,18 @@ function Obj(frame,mType){
     this.x2 = s[3];
     this.h = Math.round(this.y2-this.y1);
     this.w = Math.round(this.x2-this.x1);
-
     this.y1 = Math.round(this.y1)+adj;
     this.x1 = Math.round(this.x1)+adj;
     this.y2 = this.y1 + this.h;
     this.x2 = this.x1 + this.w;
-
-    editPara = new EditPara(frame.paragraphs);
-    this.txt =editPara.addTag();
-
+    editPara = new EditPara(frame);
+    this.txtClass = editPara.getTxtClass(frame);
+    this.txt = editPara.addTag(this.txtClass);
+    this.url = [];
     this.moduleType = mType;
 }
 
 Obj.prototype = {
-    message : function(){
-        // this.addEle()
-    },
-
     addEle : function(){
         if(this.moduleType == 'text')this.elm = this.textModule();
         if(this.moduleType == 'image')this.elm = this.imageModule();
@@ -44,11 +45,11 @@ Obj.prototype = {
         var elm = '\
 <element>\
     <text>\
-        <value>'+this.txt+'</value>\
+        <value>\r\r'+this.txt+'\r\r</value>\
         <hidden_value>'+this.txt+'</hidden_value>\
         <hidden_display></hidden_display>\
         <align>left</align>\
-        <class>bodyTextGray</class>\
+        <class>'+this.txtClass+'</class>\
         <height></height>\
         <width></width>\
         <x>'+this.x1+'</x>\
@@ -78,52 +79,139 @@ Obj.prototype = {
     },
 }
 
-
-
-function EditPara(paras){
-    this.paras = paras;
+function EditPara(textFrame){
+    this.textFrame = textFrame;
+    this.textStyle = textFrame.textStyleRanges;
+    this.textStyleL = textFrame.textStyleRanges.length;
     this.txt = '';
-    this.br = '&lt;br&gt';
 };
 EditPara.prototype = {
+    getTxtClass : function (textFrame){
+        var charcter = new Character();
+        var contentParaStyle = textFrame.paragraphs[0].appliedParagraphStyle;
+        var fontSize = charcter.fontSize(contentParaStyle);
+        var color = 'Gray';
+        if(charcter.fontColor(contentParaStyle).toString() =='0,0,0,0'){color = 'White'};
+        if (fontSize == 18 )return 'headOne' + color;
+        if (fontSize == 24 )return 'headTwo' + color;
+        if (fontSize == 36 )return 'headThree' + color;
+        return 'bodyText' + color;
+    },
     addTag : function(){
-        var type = this.paras[0].appliedParagraphStyle.name;
-        if(type.indexOf('Product') != -1){
-            this.tagDiv();
-        }else{
-            this.tagBr();
-        };
-        return this.txt;
+        var type = this.textFrame.paragraphs[0].appliedParagraphStyle.name;
+        var content = this.tagInline();
+        // if(type.indexOf('Product') >= 0){
+        //     this.tagDiv();
+        // }else{
+        //     this.tagBr();
+        // };
+        return content;
     },
-    tagBr : function(){
-        var p = '';
-        var pl = this.paras.length;
-        var tag = '&lt;br&gt;';
-        for (var i = 0; pl != 1 && pl > i; i++) {
-            if(pl-1 == i){tag = ''};
-            p = p + this.paras[i].contents;
-            p = p.replace(/(.)$/g,function(){return tag + arguments[1]});
-        };
-        this.txt = p
+    addSpan : function(content){
+        var charcter = new Character();
+        var contentParaStyle = content.paragraphs[0].appliedParagraphStyle;
+        if(charcter.fontStyle(content) != '[なし]'){
+            var getCSS = {
+                fontWeight : function(){
+                    if(charcter.fontName(contentParaStyle) != charcter.fontName(content)){
+                        if(charcter.fontWeight(content)){
+                            return 'font-weight: bold;';
+                        }else{
+                            return 'font-weight: normal;';
+                        }
+                    }
+                },
+                fontSize : function(){
+                    if(charcter.fontSize(contentParaStyle) != charcter.fontSize(content)){
+                        return 'font-size: '+charcter.fontSize(content)+'px;';
+                    }else if(charcter.fontScale(content.paragraphs[0]) != charcter.fontScale(content)){
+                        return 'font-size: '+charcter.fontScale(content)/100+'em;';
+                    }
+                },
+                lineHeight : function(){
+                    if(charcter.fontLeading(contentParaStyle) != charcter.fontLeading(content)){
+                        return 'line-hegiht'+charcter.fontLeading(content)+';';
+                    }
+                },
+                fontDeco : function(){
+                    if(charcter.fontDeco(contentParaStyle) != charcter.fontDeco(content)){
+                        if(~charcter.fontDeco(content)){
+                            return 'text-decoration: line-through;';
+                        }
+                    }
+                }
+            }
+            var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.fontDeco()];
+
+            var tagText = '<span style="' + cssStyle.join('') + '">' + content.contents + '</span>'
+            tagText = tagText.replace('\r</span>','</span>\r')
+            // alert(tagText);
+            if(cssStyle.join('') != ''){return tagText;}else{return content.contents}
+        } else {return content.contents}
     },
-    tagDiv : function(){
-        var p = '';
-        var pl = this.paras.length;
-        var sTag = '&lt;div&gt;';
-        var eTag = '&lt;/div&gt;';
-        for (var i = 0; pl != 1 && pl > i; i++) {
-            var tmp = this.paras[i].contents;
-            tmp = tmp.replace(/^/g,sTag);
-            if(0){tmp = tmp.replace(/(.)$/g,function(){return eTag + arguments[1]})
-            }else{tmp = tmp.replace(/$/g,eTag)};
-            p = p + tmp;
+    addDiv : function(text,blockObj){
+        var txtclass = this.getTxtClass(this.textFrame);
+        var charcter = new Character();
+        var getCSS = {
+            fontWeight : function(){
+                var value = charcter.fontWeight(blockObj.appliedParagraphStyle)
+                if(~txtclass.indexOf('bodyText') && value){return 'font-weight: bold;'}
+            },
+            fontSize : function(){
+                var value = charcter.fontSize(blockObj.appliedParagraphStyle)
+                if(~txtclass.indexOf('bodyText') && value != 12){return 'font-size: ' + value + 'px;'}
+            },
+            lineHeight : function(){
+                var value = charcter.fontLeading(blockObj.appliedParagraphStyle)
+                if(~txtclass.indexOf('bodyText') && value != 18){return 'line-height: ' + value + 'px;'};
+                if(~txtclass.indexOf('headOne') && value != 20){return 'line-height: ' + value + 'px;'};
+                if(~txtclass.indexOf('headTwo') && value != 28){return 'line-height: ' + value + 'px;'};
+                if(~txtclass.indexOf('headThree') && value != 45){return 'line-height: ' + value + 'px;'};
+            },
+        }
+        var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight()];
+        var tagText = '<div style="'+cssStyle.join('')+'">'+text+'</div>'
+        tagText = tagText.replace('\r</div>','</div>\r')
+        if(cssStyle.join('') !=''){return tagText;}else{return text};
+    },
+    tagInline : function(){
+        var blocks = [''];
+        for (var i = 0; i < this.textStyleL; i++) {
+            var textStyleParaName = this.textStyle[i].paragraphs[0].appliedParagraphStyle.name;
+            var textStyleCharName = this.textStyle[i].appliedCharacterStyle.name;
+            // 末尾処理
+            var brakeL = this.textStyle[i].contents.split('\r').length-1;
+            if(i+1 == this.textStyleL){brakeL += 2};
+            // span処理
+            blocks[i] = this.addSpan(this.textStyle[i]);
+            blocks[i] = blocks[i].replace(/^\r/gm,'<br>\r').replace(/\r([^$])/g,'<br>\r$1');
+            // alert(blocks[i]);
+            if(i != 0 && this.textStyle[i-1].contents.split('\r').length-1 == 0){
+            // if(i != 0 && this.textStyle[i].appliedParagraphStyle.name == this.textStyle[i-1].appliedParagraphStyle.name){
+                alert(blocks[i-1]);
+                blocks[i] = blocks[i-1] + this.addSpan(this.textStyle[i]);
+                blocks[i-1] = '';
+                // alert(i+':'+blocks[i-1] + this.textStyle[i].contents);
+            }
+            // div処理
+            if(brakeL){
+                blocks[i] = this.addDiv(blocks[i],this.textStyle[i]);
+            }
+            // alert(blocks[i]);
         };
-        this.txt = p
-    }
+
+// blocks[i]にaddSpanで終了
+// blocks[i]とblocks[i-1]が同じ名前ならblocks[i-1]='',blocks[i-1]+blocks[i]
+// blocks[i]とblocks[i+1]が同じ名前ならblock
+
+// blocks[i]とblocks[i+1]が違う名前ならaddDiv
+
+
+
+        // msg.alert(blocks.join(''));
+        return blocks.join('')
+    },
 }
-
-
-
 
 function Msg(){};
 Msg.prototype = {
@@ -135,119 +223,13 @@ Msg.prototype = {
     },
     alert : function(elm){
         alert(elm);
+    },
+    console : function(elm){
+        $.write(elm);
     }
 }
 
-
-
-
-
-function Tag(){
-    this.q = '&lt;';
-    this.p = '&gt;';
-};
-Tag.prototype = {
-    addTag : function(tag,text){
-        var tagText = this.q+tag+this.p+text+this.q+'/'+tag+this.p;
-        return tagText;
-    },
-    addBrake: function(text){
-        var tagText = text+this.q+'br'+this.p;
-        return tagText;
-    },
-    addLink: function(URL,text){
-        //ここに処理
-    }
-};
-
-Tag.prototype = {
-    addTag : function(tag,text){
-        var tagText = this.q+tag+this.p+text+this.q+'/'+tag+this.p;
-        return tagText;
-    },
-    addBrake: function(text){
-        var tagText = text+this.q+'br'+this.p;
-        return tagText;
-    },
-    addLink: function(URL,text){
-        //ここに処理
-    }
-};
-
-
-
-
-
-
-
-
-var aaa = sel[0].paragraphs;
-var arr = []
-for (var i = 0; i < aaa.length; i++) {
-    arr[i] = aaa[i].appliedParagraphStyle.name;
-};
-// alert(arr);
-
-
-
-
-
-
-
-
-
-
-
-
-
-// function Character(){
-// }
-// Character.prototype = {
-//     fontName :function(cha){return cha.appliedFont.name;},
-//     fontSize : function(cha){return cha.pointSize;},
-//     fontTest : function(cha){return cha.verticalScale},//倍率
-//     fontCha : function(cha){return cha.contents}
-// }
-
-
-
-
-
-// var style = new Character();
-// alert(style.fontSize(sel[0].paragraphs[2].characters[8]));
-// alert(style.fontTest(sel[0].paragraphs[2].characters[7]));
-// alert(style.fontCha(sel[0].paragraphs[2].characters[7]));
-
-
-// function myerror(mess) { 
-// if (arguments.length > 0) { alert(mess); } 
-// exit(); 
-// } 
-// if (sel.length == 0) {myerror("何も選択されていません")} 
-// if (sel[0].reflect.name != "TextFrame") {myerror("テキストフレームを選択してください")} 
-// var i = 1;//行数 
-// if (sel[0].paragraphs[i].characters.length < 2) {myerror("空行です")} 
-
-// var my_first_character = sel[0].paragraphs[i].characters[0];//１文字目 
-// my_first_character.appliedFont.name;//フォント名 
-// my_first_character.pointSize//文字サイズ 
-
-// var my_last_character = sel[0].paragraphs[i].characters[-2];//最後の文字 
-// my_last_character.appliedFont.name;//フォント名 
-// my_last_character.pointSize//文字サイズ
-
-
-
-
-
-
-
-
-
-
-
-
-
+var msg = new Msg();
 var obj = [];
 var elm = '';
 for (var i = 0; i < sel.length; i++) {
@@ -255,76 +237,6 @@ for (var i = 0; i < sel.length; i++) {
     obj[i].addEle();
     elm += obj[i].elm;
 };
-var msg = new Msg();
-// alert(msg.alert(elm));
-alert(msg.dialog(elm));
 
-
-
-
-// var tag = new Tag();
-// var test = tag.addTag('b','太字テキストです');
-// alert(msg.alert(test));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var ObjPosition = function(obj){
-    var s=obj.visibleBounds;
-    var y1=s[0];
-    var x1=s[1];
-    var y2=s[2];
-    var x2=s[3];
-    var h =Math.round(y2-y1);
-    var w =Math.round(x2-x1);
-
-    y1 =Math.round(y1);
-    x1 =Math.round(x1);
-    y2 = y1 + h;
-    x2 = x1 + w;
-
-    return x1+':'+y1;
-};
-
-
-// var putPosition = function(sel){
-//     var position = [];
-//     var text = [];
-//     if(sel!=""){
-//         for (i=0,j=sel.length; i<j; i++) {
-//             position[i] = ObjPosition(sel[i]);
-//             text[i] = sel[i].contents
-//         }
-//     }else{
-//         alert("Select object!");
-//     };
-//     alert(position.join(','));
-// }
-
-
-
-// putPosition(sel);
-
+msg.alert(elm);
+// msg.dialog(elm);

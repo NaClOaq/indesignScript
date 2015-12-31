@@ -145,7 +145,6 @@ EditPara.prototype = {
 
             var tagText = '<span style="' + cssStyle.join('') + '">' + content.contents + '</span>'
             tagText = tagText.replace('\r</span>','</span>\r')
-            // alert(tagText);
             if(cssStyle.join('') != ''){return tagText;}else{return content.contents}
         } else {return content.contents}
     },
@@ -176,37 +175,35 @@ EditPara.prototype = {
     },
     tagInline : function(){
         var blocks = [''];
-        for (var i = 0; i < this.textStyleL; i++) {
-            var textStyleParaName = this.textStyle[i].paragraphs[0].appliedParagraphStyle.name;
-            var textStyleCharName = this.textStyle[i].appliedCharacterStyle.name;
-            // 末尾処理
-            var brakeL = this.textStyle[i].contents.split('\r').length-1;
-            if(i+1 == this.textStyleL){brakeL += 2};
+        var blocksObj = []
+        for (var i = 0; i < this.textStyle.length; i++) {
+            blocksObj[i] = this.textStyle[i];
+        };
+        for (var i = 0; i < blocksObj.length; i++) {
+            var textStyleParaName = blocksObj[i].paragraphs[0].appliedParagraphStyle.name;
+            var textStyleCharName = blocksObj[i].appliedCharacterStyle.name;
             // span処理
-            blocks[i] = this.addSpan(this.textStyle[i]);
-            blocks[i] = blocks[i].replace(/^\r/gm,'<br>\r').replace(/\r([^$])/g,'<br>\r$1');
-            // alert(blocks[i]);
-            if(i != 0 && this.textStyle[i-1].contents.split('\r').length-1 == 0){
-            // if(i != 0 && this.textStyle[i].appliedParagraphStyle.name == this.textStyle[i-1].appliedParagraphStyle.name){
-                alert(blocks[i-1]);
-                blocks[i] = blocks[i-1] + this.addSpan(this.textStyle[i]);
+            blocks[i] = this.addSpan(blocksObj[i]);
+            // br処理
+            blocks[i] = blocks[i].replace(/\r([^$])/g,'<br>\r$1');
+            if(typeof blocksObj[i+1] != 'undefined' && blocksObj[i].appliedParagraphStyle.name == blocksObj[i+1].appliedParagraphStyle.name){
+                blocks[i] = blocks[i].replace(/\r$/,'<br>\r');
+            }
+            // inline結合
+            // if(i != 0 && blocksObj[i-1].contents.split('\r').length-1 == 0){
+            if(i != 0 && blocksObj[i].appliedParagraphStyle.name == blocksObj[i-1].appliedParagraphStyle.name){
+                blocks[i] = blocks[i-1] + this.addSpan(blocksObj[i]);
                 blocks[i-1] = '';
-                // alert(i+':'+blocks[i-1] + this.textStyle[i].contents);
             }
             // div処理
-            if(brakeL){
-                blocks[i] = this.addDiv(blocks[i],this.textStyle[i]);
+            if(typeof blocksObj[i+1] == 'undefined'){
+                blocks[i] = this.addDiv(blocks[i],blocksObj[i]);
+            }else if(blocksObj[i].appliedParagraphStyle.name != blocksObj[i+1].appliedParagraphStyle.name){
+                blocks[i] = this.addDiv(blocks[i],blocksObj[i]);
             }
+
             // alert(blocks[i]);
         };
-
-// blocks[i]にaddSpanで終了
-// blocks[i]とblocks[i-1]が同じ名前ならblocks[i-1]='',blocks[i-1]+blocks[i]
-// blocks[i]とblocks[i+1]が同じ名前ならblock
-
-// blocks[i]とblocks[i+1]が違う名前ならaddDiv
-
-
 
         // msg.alert(blocks.join(''));
         return blocks.join('')

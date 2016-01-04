@@ -5,16 +5,16 @@ var sel = app.activeDocument.selection;
 function Character(){
 }
 Character.prototype = {
-    fontName :function(cha){return cha.appliedFont.name},
-    fontWeight :function(cha){return ~cha.appliedFont.name.indexOf('B')},// Boolean
-    fontStyle :function(cha){return cha.appliedCharacterStyle.name},
-    fontSize : function(cha){return cha.pointSize},
-    fontLeading :function(cha){return cha.leading},
-    fontScale : function(cha){return cha.verticalScale},//　倍率
-    fontCha : function(cha){return cha.contents},
-    fontDeco : function(cha){return cha.strikeThroughWeight},// 打ち消し線
-    fontColor :function(cha){return cha.fillColor.colorValue},
-}
+    fontName :function(cha){return cha.appliedFont.name;},
+    fontWeight :function(cha){return ~cha.appliedFont.name.indexOf('B');},// Boolean
+    fontStyle :function(cha){return cha.appliedCharacterStyle.name;},
+    fontSize : function(cha){return cha.pointSize;},
+    fontLeading :function(cha){return cha.leading;},
+    fontScale : function(cha){return cha.verticalScale;},//　倍率
+    fontCha : function(cha){return cha.contents;},
+    fontDeco : function(cha){return cha.strikeThroughWeight;},// 打ち消し線
+    fontColor :function(cha){return cha.fillColor.colorValue;},
+};
 
 function Obj(frame,mType){
     var s = frame.visibleBounds;
@@ -77,21 +77,21 @@ Obj.prototype = {
         ';
     return elm;
     },
-}
+};
 
 function EditPara(textFrame){
     this.textFrame = textFrame;
     this.textStyle = textFrame.textStyleRanges;
     this.textStyleL = textFrame.textStyleRanges.length;
     this.txt = '';
-};
+}
 EditPara.prototype = {
     getTxtClass : function (textFrame){
         var charcter = new Character();
         var contentParaStyle = textFrame.paragraphs[0].appliedParagraphStyle;
         var fontSize = charcter.fontSize(contentParaStyle);
         var color = 'Gray';
-        if(charcter.fontColor(contentParaStyle).toString() =='0,0,0,0'){color = 'White'};
+        if(charcter.fontColor(contentParaStyle).toString() =='0,0,0,0'){color = 'White';}
         if (fontSize == 18 )return 'headOne' + color;
         if (fontSize == 24 )return 'headTwo' + color;
         if (fontSize == 36 )return 'headThree' + color;
@@ -140,45 +140,45 @@ EditPara.prototype = {
                         }
                     }
                 }
-            }
+            };
             var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.fontDeco()];
 
-            var tagText = '<span style="' + cssStyle.join('') + '">' + content.contents + '</span>'
-            tagText = tagText.replace('\r</span>','</span>\r')
-            if(cssStyle.join('') != ''){return tagText;}else{return content.contents}
-        } else {return content.contents}
+            var tagText = '<span style="' + cssStyle.join('') + '">' + content.contents + '</span>';
+            tagText = tagText.replace('\r</span>','</span>\r');
+            if(cssStyle.join('') !== ''){return tagText;}else{return content.contents;}
+        } else {return content.contents;}
     },
     addDiv : function(text,blockObj){
         var txtclass = this.getTxtClass(this.textFrame);
         var charcter = new Character();
         var getCSS = {
             fontWeight : function(){
-                var value = charcter.fontWeight(blockObj.appliedParagraphStyle)
-                if(~txtclass.indexOf('bodyText') && value){return 'font-weight: bold;'}
+                var value = charcter.fontWeight(blockObj.appliedParagraphStyle);
+                if(~txtclass.indexOf('bodyText') && value){return 'font-weight: bold;';}
             },
             fontSize : function(){
-                var value = charcter.fontSize(blockObj.appliedParagraphStyle)
-                if(~txtclass.indexOf('bodyText') && value != 12){return 'font-size: ' + value + 'px;'}
+                var value = charcter.fontSize(blockObj.appliedParagraphStyle);
+                if(~txtclass.indexOf('bodyText') && value != 12){return 'font-size: ' + value + 'px;';}
             },
             lineHeight : function(){
-                var value = charcter.fontLeading(blockObj.appliedParagraphStyle)
-                if(~txtclass.indexOf('bodyText') && value != 18){return 'line-height: ' + value + 'px;'};
-                if(~txtclass.indexOf('headOne') && value != 20){return 'line-height: ' + value + 'px;'};
-                if(~txtclass.indexOf('headTwo') && value != 28){return 'line-height: ' + value + 'px;'};
-                if(~txtclass.indexOf('headThree') && value != 45){return 'line-height: ' + value + 'px;'};
+                var value = charcter.fontLeading(blockObj.appliedParagraphStyle);
+                if(~txtclass.indexOf('bodyText') && value != 18){return 'line-height: ' + value + 'px;';}
+                if(~txtclass.indexOf('headOne') && value != 20){return 'line-height: ' + value + 'px;';}
+                if(~txtclass.indexOf('headTwo') && value != 28){return 'line-height: ' + value + 'px;';}
+                if(~txtclass.indexOf('headThree') && value != 45){return 'line-height: ' + value + 'px;';}
             },
-        }
+        };
         var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight()];
-        var tagText = '<div style="'+cssStyle.join('')+'">'+text+'</div>'
-        tagText = tagText.replace('\r</div>','</div>\r')
-        if(cssStyle.join('') !=''){return tagText;}else{return text};
+        var tagText = '<div style="'+cssStyle.join('')+'">'+text+'</div>';
+        tagText = tagText.replace('\r</div>','</div>\r');
+        if(cssStyle.join('') !==''){return tagText;}else{return text;}
     },
     tagInline : function(){
         var blocks = [''];
-        var blocksObj = []
+        var blocksObj = [];
         for (var i = 0; i < this.textStyle.length; i++) {
             blocksObj[i] = this.textStyle[i];
-        };
+        }
         for (var i = 0; i < blocksObj.length; i++) {
             var textStyleParaName = blocksObj[i].paragraphs[0].appliedParagraphStyle.name;
             var textStyleCharName = blocksObj[i].appliedCharacterStyle.name;
@@ -203,14 +203,14 @@ EditPara.prototype = {
             }
 
             // alert(blocks[i]);
-        };
+        }
 
         // msg.alert(blocks.join(''));
-        return blocks.join('')
+        return blocks.join('');
     },
-}
+};
 
-function Msg(){};
+function Msg(){}
 Msg.prototype = {
     dialog : function(elm){
         var wObj = app.dialogs.add({ name:"XML" });
@@ -224,7 +224,7 @@ Msg.prototype = {
     console : function(elm){
         $.write(elm);
     }
-}
+};
 
 var msg = new Msg();
 var obj = [];
@@ -233,7 +233,7 @@ for (var i = 0; i < sel.length; i++) {
     obj[i] = new Obj(sel[i],'text');
     obj[i].addEle();
     elm += obj[i].elm;
-};
+}
 
 msg.alert(elm);
 // msg.dialog(elm);

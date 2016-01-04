@@ -43,37 +43,37 @@ Obj.prototype = {
     },
     textModule : function(){
         var elm = '\
-<element>\
-    <text>\
-        <value>\r\r'+this.txt+'\r\r</value>\
-        <hidden_value>'+this.txt+'</hidden_value>\
-        <hidden_display></hidden_display>\
-        <align>left</align>\
-        <class>'+this.txtClass+'</class>\
-        <height></height>\
-        <width></width>\
-        <x>'+this.x1+'</x>\
-        <y>'+this.y1+'</y>\
-        <layer></layer>\
-    </text>\
-</element>\
+&lt;element&gt;\
+    &lt;text&gt;\
+        &lt;value&gt;\r\r'+this.txt+'\r\r&lt;/value&gt;\
+        &lt;hidden_value&gt;'+this.txt+'&lt;/hidden_value&gt;\
+        &lt;hidden_display&gt;&lt;/hidden_display&gt;\
+        &lt;align&gt;left&lt;/align&gt;\
+        &lt;class&gt;'+this.txtClass+'&lt;/class&gt;\
+        &lt;height&gt;&lt;/height&gt;\
+        &lt;width&gt;&lt;/width&gt;\
+        &lt;x&gt;'+this.x1+'&lt;/x&gt;\
+        &lt;y&gt;'+this.y1+'&lt;/y&gt;\
+        &lt;layer&gt;&lt;/layer&gt;\
+    &lt;/text&gt;\
+&lt;/element&gt;\
         ';
     return elm;
     },
     imageModule : function (){
         var elm = '\
-<element>\
-    <image>\
-        <source></source>\
-        <alt></alt>\
-        <seoText></seoText>\
-        <height></height>\
-        <width></width>\
-        <x>'+this.x1+'</x>\
-        <y>'+this.y1+'</y>\
-        <layer></layer>\
-    </image>\
-</element>\
+&lt;element&gt;\
+    &lt;image&gt;\
+        &lt;source&gt;&lt;/source&gt;\
+        &lt;alt&gt;&lt;/alt&gt;\
+        &lt;seoText&gt;&lt;/seoText&gt;\
+        &lt;height&gt;&lt;/height&gt;\
+        &lt;width&gt;&lt;/width&gt;\
+        &lt;x&gt;'+this.x1+'&lt;/x&gt;\
+        &lt;y&gt;'+this.y1+'&lt;/y&gt;\
+        &lt;layer&gt;&lt;/layer&gt;\
+    &lt;/image&gt;\
+&lt;/element&gt;\
         ';
     return elm;
     },
@@ -143,8 +143,8 @@ EditPara.prototype = {
             };
             var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.fontDeco()];
 
-            var tagText = '<span style="' + cssStyle.join('') + '">' + content.contents + '</span>';
-            tagText = tagText.replace('\r</span>','</span>\r');
+            var tagText = '&lt;span&gt;style="' + cssStyle.join('') + '">' + content.contents + '&lt;/span&gt;';
+            tagText = tagText.replace('\r&lt;/span&gt;','&lt;/span&gt;\r');
             if(cssStyle.join('') !== ''){return tagText;}else{return content.contents;}
         } else {return content.contents;}
     },
@@ -169,8 +169,8 @@ EditPara.prototype = {
             },
         };
         var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight()];
-        var tagText = '<div style="'+cssStyle.join('')+'">'+text+'</div>';
-        tagText = tagText.replace('\r</div>','</div>\r');
+        var tagText = '&lt;div style="'+cssStyle.join('')+'"&gt;'+text+'&lt;/div&gt;';
+        tagText = tagText.replace('\r&lt;/div&gt;','&lt;/div&gt;\r');
         if(cssStyle.join('') !==''){return tagText;}else{return text;}
     },
     tagInline : function(){
@@ -185,9 +185,9 @@ EditPara.prototype = {
             // span処理
             blocks[i] = this.addSpan(blocksObj[i]);
             // br処理
-            blocks[i] = blocks[i].replace(/\r([^$])/g,'<br>\r$1');
+            blocks[i] = blocks[i].replace(/\r([^$])/g,'&lt;br&gt;\r$1');
             if(typeof blocksObj[i+1] != 'undefined' && blocksObj[i].appliedParagraphStyle.name == blocksObj[i+1].appliedParagraphStyle.name){
-                blocks[i] = blocks[i].replace(/\r$/,'<br>\r');
+                blocks[i] = blocks[i].replace(/\r$/,'&lt;br&gt;\r');
             }
             // inline結合
             // if(i != 0 && blocksObj[i-1].contents.split('\r').length-1 == 0){

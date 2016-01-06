@@ -143,7 +143,7 @@ EditPara.prototype = {
             };
             var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.fontDeco()];
 
-            var tagText = '&lt;span&gt;style="' + cssStyle.join('') + '">' + content.contents + '&lt;/span&gt;';
+            var tagText = '&lt;span style="' + cssStyle.join('') + '">' + content.contents + '&lt;/span&gt;';
             tagText = tagText.replace('\r&lt;/span&gt;','&lt;/span&gt;\r');
             if(cssStyle.join('') !== ''){return tagText;}else{return content.contents;}
         } else {return content.contents;}

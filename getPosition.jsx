@@ -43,37 +43,37 @@ Obj.prototype = {
     },
     textModule : function(){
         var elm = '\
-&lt;element&gt;\
-    &lt;text&gt;\
-        &lt;value&gt;\r\r'+this.txt+'\r\r&lt;/value&gt;\
-        &lt;hidden_value&gt;'+this.txt+'&lt;/hidden_value&gt;\
-        &lt;hidden_display&gt;&lt;/hidden_display&gt;\
-        &lt;align&gt;left&lt;/align&gt;\
-        &lt;class&gt;'+this.txtClass+'&lt;/class&gt;\
-        &lt;height&gt;&lt;/height&gt;\
-        &lt;width&gt;&lt;/width&gt;\
-        &lt;x&gt;'+this.x1+'&lt;/x&gt;\
-        &lt;y&gt;'+this.y1+'&lt;/y&gt;\
-        &lt;layer&gt;&lt;/layer&gt;\
-    &lt;/text&gt;\
-&lt;/element&gt;\
+<element>\
+    <text>\
+        <value>'+this.txt+'</value>\
+        <hidden_value>'+this.txt+'</hidden_value>\
+        <hidden_display></hidden_display>\
+        <align>left</align>\
+        <class>'+this.txtClass+'</class>\
+        <height></height>\
+        <width></width>\
+        <x>'+this.x1+'</x>\
+        <y>'+this.y1+'</y>\
+        <layer></layer>\
+    </text>\
+</element>\
         ';
     return elm;
     },
     imageModule : function (){
         var elm = '\
-&lt;element&gt;\
-    &lt;image&gt;\
-        &lt;source&gt;&lt;/source&gt;\
-        &lt;alt&gt;&lt;/alt&gt;\
-        &lt;seoText&gt;&lt;/seoText&gt;\
-        &lt;height&gt;&lt;/height&gt;\
-        &lt;width&gt;&lt;/width&gt;\
-        &lt;x&gt;'+this.x1+'&lt;/x&gt;\
-        &lt;y&gt;'+this.y1+'&lt;/y&gt;\
-        &lt;layer&gt;&lt;/layer&gt;\
-    &lt;/image&gt;\
-&lt;/element&gt;\
+<element>\
+    <image>\
+        <source></source>\
+        <alt></alt>\
+        <seoText></seoText>\
+        <height></height>\
+        <width></width>\
+        <x>'+this.x1+'</x>\
+        <y>'+this.y1+'</y>\
+        <layer></layer>\
+    </image>\
+</element>\
         ';
     return elm;
     },

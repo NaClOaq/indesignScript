@@ -77,6 +77,26 @@ Obj.prototype = {
         ';
     return elm;
     },
+    productModule : function (){
+        var elm = '\
+<element>
+    <product>
+        <class>prodStyle2_B</class>
+        <x>'+this.x1+'</x>
+        <y>'+this.y1+'</y>
+        <layer>
+        </layer>
+        <link>
+            <product>'+this.article+'</product>
+            <global_article_num>
+            </global_article_num>
+        </link>
+        <product_seperator>,</product_seperator>
+    </product>
+</element>
+        ';
+    return elm;
+    },
 };
 
 function EditPara(textFrame){

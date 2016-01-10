@@ -13,10 +13,10 @@ Character.prototype = {
     fontScale : function(cha){return cha.verticalScale;},//　倍率
     fontCha : function(cha){return cha.contents;},
     fontDeco : function(cha){return cha.strikeThroughWeight;},// 打ち消し線
-    fontColor :function(cha){return cha.fillColor.colorValue;},
+    fontColor :function(cha){return cha.fillColor.colorValue;},// font-color(CMYK)
 };
 
-function Obj(frame,mType){
+function Obj(frame){
     var s = frame.visibleBounds;
     var adj = 5;
     this.y1 = s[0];
@@ -29,14 +29,19 @@ function Obj(frame,mType){
     this.x1 = Math.round(this.x1)+adj;
     this.y2 = this.y1 + this.h;
     this.x2 = this.x1 + this.w;
+    this.moduleType = this.mType(frame);
+
     editPara = new EditPara(frame);
     this.txtClass = editPara.getTxtClass(frame);
     this.txt = editPara.addTag(this.txtClass);
     this.url = [];
-    this.moduleType = mType;
 }
 
 Obj.prototype = {
+    mType : function(frame){
+        if(frame.label == 'product')return 'product';
+        else return 'text';
+    },
     addEle : function(){
         if(this.moduleType == 'text')this.elm = this.textModule();
         if(this.moduleType == 'image')this.elm = this.imageModule();
@@ -79,21 +84,21 @@ Obj.prototype = {
     },
     productModule : function (){
         var elm = '\
-<element>
-    <product>
-        <class>prodStyle2_B</class>
-        <x>'+this.x1+'</x>
-        <y>'+this.y1+'</y>
-        <layer>
-        </layer>
-        <link>
-            <product>'+this.article+'</product>
-            <global_article_num>
-            </global_article_num>
-        </link>
-        <product_seperator>,</product_seperator>
-    </product>
-</element>
+<element>\
+    <product>\
+        <class>prodStyle2_B</class>\
+        <x>'+this.x1+'</x>\
+        <y>'+this.y1+'</y>\
+        <layer>\
+        </layer>\
+        <link>\
+            <product>'+this.article+'</product>\
+            <global_article_num>\
+            </global_article_num>\
+        </link>\
+        <product_seperator>,</product_seperator>\
+    </product>\
+</element>\
         ';
     return elm;
     },
@@ -246,6 +251,8 @@ Msg.prototype = {
     }
 };
 
+
+
 var msg = new Msg();
 var obj = [];
 var elm = '';
@@ -254,6 +261,10 @@ for (var i = 0; i < sel.length; i++) {
     obj[i].addEle();
     elm += obj[i].elm;
 }
-
 msg.alert(elm);
 // msg.dialog(elm);
+
+
+
+
+

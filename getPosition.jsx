@@ -17,36 +17,63 @@ Character.prototype = {
 };
 
 function Obj(frame){
+    this.f = frame;
     var s = frame.visibleBounds;
-    var adj = 5;
     this.y1 = s[0];
     this.x1 = s[1];
     this.y2 = s[2];
     this.x2 = s[3];
     this.h = Math.round(this.y2-this.y1);
     this.w = Math.round(this.x2-this.x1);
-    this.y1 = Math.round(this.y1)+adj;
-    this.x1 = Math.round(this.x1)+adj;
+    this.y1 = Math.round(s[0]);
+    this.x1 = Math.round(s[1]);
     this.y2 = this.y1 + this.h;
     this.x2 = this.x1 + this.w;
-    this.moduleType = this.mType(frame);
-
-    editPara = new EditPara(frame);
-    this.txtClass = editPara.getTxtClass(frame);
-    this.txt = editPara.addTag(this.txtClass);
-    this.url = [];
+    this.moduleType = this.mType();
+    this.xmlElement = this.addEle();
 }
 
 Obj.prototype = {
-    mType : function(frame){
-        if(frame.label == 'product')return 'product';
+    mType : function(){
+        if(this.f.label.match(/^article:/)) return 'product';
         else return 'text';
     },
     addEle : function(){
-        if(this.moduleType == 'text')this.elm = this.textModule();
-        if(this.moduleType == 'image')this.elm = this.imageModule();
+        if(this.moduleType == 'text')return this.textModule();
+        if(this.moduleType == 'product')return this.productModule();
+        if(this.moduleType == 'image')return this.imageModule();
+    },
+    productModule : function (){
+        editPM = new EditProductModule();
+        this.article = editPM.getArticle(this.f);
+        this.txtClass = editPM.getTxtClass(this.f);
+        var elm = '\
+<element>\
+    <product>\
+        <class>'+this.txtClass+'</class>\
+        <x>'+this.x1+'</x>\
+        <y>'+this.y1+'</y>\
+        <layer>\
+        </layer>\
+        <link>\
+            <product>'+this.article+'</product>\
+            <global_article_num>\
+            </global_article_num>\
+        </link>\
+        <product_seperator>,</product_seperator>\
+    </product>\
+</element>\
+        ';
+    return elm;
     },
     textModule : function(){
+        var adj = 5;
+        this.y1 = Math.round(this.y1)+adj;
+        this.x1 = Math.round(this.x1)+adj;
+        editTM = new EditTextModule(this.f);
+        this.txtClass = editTM.getTxtClass(this.f);
+        this.txt = editTM.addTag(this.txtClass);
+        this.url = [];
         var elm = '\
 <element>\
     <text>\
@@ -82,35 +109,45 @@ Obj.prototype = {
         ';
     return elm;
     },
-    productModule : function (){
-        var elm = '\
-<element>\
-    <product>\
-        <class>prodStyle2_B</class>\
-        <x>'+this.x1+'</x>\
-        <y>'+this.y1+'</y>\
-        <layer>\
-        </layer>\
-        <link>\
-            <product>'+this.article+'</product>\
-            <global_article_num>\
-            </global_article_num>\
-        </link>\
-        <product_seperator>,</product_seperator>\
-    </product>\
-</element>\
-        ';
-    return elm;
-    },
 };
 
-function EditPara(textFrame){
+
+
+
+
+
+function EditProductModule(){}
+EditProductModule.prototype = {
+    getArticle : function(textFrame){
+        return textFrame.label.replace(/article: *([0-9]*) */,'$1');
+    },
+    getTxtClass : function(textFrame){
+        var color = 'B';
+        var charcter = new Character();
+        var contentParaStyle = textFrame.paragraphs[0].appliedParagraphStyle;
+        for (var i = 0; i < textFrame.paragraphs.length; i++) {
+            if(textFrame.paragraphs[i].appliedParagraphStyle.name == 'Price'){// 判定注意
+                contentParaStyle = textFrame.paragraphs[i].appliedParagraphStyle;
+            }
+        };
+        if(charcter.fontColor(contentParaStyle).toString() =='0,0,0,0'){color = 'W';}
+        if(charcter.fontSize(contentParaStyle) == 36)return 'prodStyle3_'+color;
+        if(charcter.fontSize(contentParaStyle) == 24)return 'prodStyle2_'+color;
+        if(charcter.fontSize(contentParaStyle) == 18)return 'prodStyle1_'+color;
+        return 'prodStyle1_' + color;
+    }
+}
+
+
+
+
+function EditTextModule(textFrame){
     this.textFrame = textFrame;
     this.textStyle = textFrame.textStyleRanges;
     this.textStyleL = textFrame.textStyleRanges.length;
     this.txt = '';
 }
-EditPara.prototype = {
+EditTextModule.prototype = {
     getTxtClass : function (textFrame){
         var charcter = new Character();
         var contentParaStyle = textFrame.paragraphs[0].appliedParagraphStyle;
@@ -135,7 +172,7 @@ EditPara.prototype = {
     addSpan : function(content){
         var charcter = new Character();
         var contentParaStyle = content.paragraphs[0].appliedParagraphStyle;
-        if(charcter.fontStyle(content) != '[なし]'){
+        if(charcter.fontStyle(content) != '[なし]'){// 判定注意
             var getCSS = {
                 fontWeight : function(){
                     if(charcter.fontName(contentParaStyle) != charcter.fontName(content)){
@@ -201,6 +238,7 @@ EditPara.prototype = {
     tagInline : function(){
         var blocks = [''];
         var blocksObj = [];
+        //テキスト取得
         for (var i = 0; i < this.textStyle.length; i++) {
             blocksObj[i] = this.textStyle[i];
         }
@@ -235,6 +273,19 @@ EditPara.prototype = {
     },
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 function Msg(){}
 Msg.prototype = {
     dialog : function(elm){
@@ -257,9 +308,9 @@ var msg = new Msg();
 var obj = [];
 var elm = '';
 for (var i = 0; i < sel.length; i++) {
-    obj[i] = new Obj(sel[i],'text');
-    obj[i].addEle();
-    elm += obj[i].elm;
+    obj[i] = new Obj(sel[i]);
+    // obj[i].addEle();this.xmlElement
+    elm += obj[i].xmlElement;
 }
 msg.alert(elm);
 // msg.dialog(elm);

@@ -1,7 +1,7 @@
-﻿// visibleBounds ボーダーを含む場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
-// geometricBounds　ボーダーを含まない場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
-var sel = app.activeDocument.selection;
+﻿
 
+// visibleBounds ボーダーを含む場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
+// geometricBounds　ボーダーを含まない場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
 function Character(){
 }
 Character.prototype = {
@@ -14,6 +14,8 @@ Character.prototype = {
     fontCha : function(cha){return cha.contents;},
     fontDeco : function(cha){return cha.strikeThroughWeight;},// 打ち消し線
     fontColor :function(cha){return cha.fillColor.colorValue;},// font-color(CMYK)
+    fontMBottom : function(cha){return cha.spaceAfter;},// 段落後のアキ
+    fontMTop : function(cha){return cha.spaceBefore;},// 段落前のアキ
 };
 
 function Obj(frame){
@@ -170,6 +172,8 @@ EditTextModule.prototype = {
         return content;
     },
     addSpan : function(content){
+        // 実体参照
+        var text = content.contents.replace(/&/g,'&amp;');
         var charcter = new Character();
         var contentParaStyle = content.paragraphs[0].appliedParagraphStyle;
         if(charcter.fontStyle(content) != '[なし]'){// 判定注意
@@ -204,11 +208,11 @@ EditTextModule.prototype = {
                 }
             };
             var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.fontDeco()];
+            var tagText = '&lt;span style="' + cssStyle.join('') + '">' + text + '&lt;/span&gt;';
 
-            var tagText = '&lt;span style="' + cssStyle.join('') + '">' + content.contents + '&lt;/span&gt;';
             tagText = tagText.replace('\r&lt;/span&gt;','&lt;/span&gt;\r');
             if(cssStyle.join('') !== ''){return tagText;}else{return content.contents;}
-        } else {return content.contents;}
+        } else {return text;}
     },
     addDiv : function(text,blockObj){
         var txtclass = this.getTxtClass(this.textFrame);
@@ -229,8 +233,18 @@ EditTextModule.prototype = {
                 if(~txtclass.indexOf('headTwo') && value != 28){return 'line-height: ' + value + 'px;';}
                 if(~txtclass.indexOf('headThree') && value != 45){return 'line-height: ' + value + 'px;';}
             },
+            margineTop : function(){
+                var value = charcter.fontMTop(blockObj.appliedParagraphStyle);
+                value = value && (value+'px');
+                if(value){return 'margin-top: '+value+';'};
+            },
+            margineBottom : function(){
+                var value = charcter.fontMBottom(blockObj.appliedParagraphStyle);
+                value = value && (value+'px');
+                if(value){return 'margin-bottom: '+value+';'};
+            }
         };
-        var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight()];
+        var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.margineTop(),getCSS.margineBottom()];
         var tagText = '&lt;div style="'+cssStyle.join('')+'"&gt;'+text+'&lt;/div&gt;';
         tagText = tagText.replace('\r&lt;/div&gt;','&lt;/div&gt;\r');
         if(cssStyle.join('') !==''){return tagText;}else{return text;}
@@ -238,7 +252,7 @@ EditTextModule.prototype = {
     tagInline : function(){
         var blocks = [''];
         var blocksObj = [];
-        //テキスト取得
+        //テキストオブジェクト取得
         for (var i = 0; i < this.textStyle.length; i++) {
             blocksObj[i] = this.textStyle[i];
         }
@@ -304,6 +318,8 @@ Msg.prototype = {
 
 
 
+
+var sel = app.activeDocument.selection;
 var msg = new Msg();
 var obj = [];
 var elm = '';
@@ -314,8 +330,3 @@ for (var i = 0; i < sel.length; i++) {
 }
 msg.alert(elm);
 // msg.dialog(elm);
-
-
-
-
-

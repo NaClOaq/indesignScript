@@ -1,6 +1,4 @@
-﻿
-
-// visibleBounds ボーダーを含む場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
+﻿// visibleBounds ボーダーを含む場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
 // geometricBounds　ボーダーを含まない場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
 function Character(){
 }
@@ -31,13 +29,27 @@ function Obj(frame){
     this.x1 = Math.round(s[1]);
     this.y2 = this.y1 + this.h;
     this.x2 = this.x1 + this.w;
+    this.objLable = this.getLable();//{URL:[], article:[]], CSS:[]}
+    // alert(this.objLable.URL[1]);
     this.moduleType = this.mType();
     this.xmlElement = this.addEle();
 }
 
 Obj.prototype = {
+    getLable : function(){
+        var label = this.f.label.split("\n");
+        var objLable = {};
+        for (var i = 0; i < label.length; i++) {
+            var key = label[i].replace(/^(.*?):(.*)$/g,'$1')
+            var value = RegExp.$2;
+            objLable[key]||objLable[key] = [];
+            objLable[key].push(value);
+        };
+        return objLable;
+    },
     mType : function(){
-        if(this.f.label.match(/^article:/)) return 'product';
+        // if(this.f.label.match(/^article:/)) return 'product';
+        if(this.objLable.article) return 'product';
         else return 'text';
     },
     addEle : function(){
@@ -47,7 +59,7 @@ Obj.prototype = {
     },
     productModule : function (){
         editPM = new EditProductModule();
-        this.article = editPM.getArticle(this.f);
+        this.article = this.objLable.article[0];
         this.txtClass = editPM.getTxtClass(this.f);
         var elm = '\
 <element>\
@@ -120,9 +132,6 @@ Obj.prototype = {
 
 function EditProductModule(){}
 EditProductModule.prototype = {
-    getArticle : function(textFrame){
-        return textFrame.label.replace(/article: *([0-9]*) */,'$1');
-    },
     getTxtClass : function(textFrame){
         var color = 'B';
         var charcter = new Character();
@@ -173,7 +182,7 @@ EditTextModule.prototype = {
     },
     addSpan : function(content){
         // 実体参照
-        var text = content.contents.replace(/&/g,'&amp;');
+        var text = content.contents.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         var charcter = new Character();
         var contentParaStyle = content.paragraphs[0].appliedParagraphStyle;
         if(charcter.fontStyle(content) != '[なし]'){// 判定注意

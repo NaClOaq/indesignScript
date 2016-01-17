@@ -40,10 +40,12 @@ Obj.prototype = {
         var label = this.f.label.split("\n");
         var objLable = {};
         for (var i = 0; i < label.length; i++) {
-            var key = label[i].replace(/^(.*?):(.*)$/g,'$1')
+            var key = label[i].replace(/^(.*?) *: *(.*)$/g,'$1')
             var value = RegExp.$2;
-            objLable[key]||objLable[key] = [];
-            objLable[key].push(value);
+            if(key.match(/(URL)|(article)|(CSS)/)){
+                objLable[key]||objLable[key] = [];
+                objLable[key].push(value);
+            }
         };
         return objLable;
     },
@@ -84,7 +86,7 @@ Obj.prototype = {
         var adj = 5;
         this.y1 = Math.round(this.y1)+adj;
         this.x1 = Math.round(this.x1)+adj;
-        editTM = new EditTextModule(this.f);
+        editTM = new EditTextModule(this.f,this.objLable);
         this.txtClass = editTM.getTxtClass(this.f);
         this.txt = editTM.addTag(this.txtClass);
         this.url = [];
@@ -152,11 +154,12 @@ EditProductModule.prototype = {
 
 
 
-function EditTextModule(textFrame){
+function EditTextModule(textFrame,objLable){
     this.textFrame = textFrame;
     this.textStyle = textFrame.textStyleRanges;
     this.textStyleL = textFrame.textStyleRanges.length;
     this.txt = '';
+    this.objLable = objLable;
 }
 EditTextModule.prototype = {
     getTxtClass : function (textFrame){
@@ -292,7 +295,13 @@ EditTextModule.prototype = {
         }
 
         // msg.alert(blocks.join(''));
-        return blocks.join('');
+        if(this.objLable.CSS){
+            alert('&lt;div style="'+this.objLable.CSS.join('')+'"&gt;'+blocks.join('')+'&lt;/div&gt;')
+            return '&lt;div style="'+this.objLable.CSS.join('')+'"&gt;'+blocks.join('')+'&lt;/div&gt;';
+        }else{
+            return blocks.join('');
+        }
+        
     },
 };
 

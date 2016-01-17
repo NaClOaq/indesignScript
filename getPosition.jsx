@@ -29,20 +29,21 @@ function Obj(frame){
     this.x1 = Math.round(s[1]);
     this.y2 = this.y1 + this.h;
     this.x2 = this.x1 + this.w;
-    this.objLable = this.getLable();//{URL:[], article:[]], CSS:[]}
+    this.objLable = this.getLable();//{URL:[], article:[]], CSS:[], width[]}
     // alert(this.objLable.URL[1]);
     this.moduleType = this.mType();
     this.xmlElement = this.addEle();
 }
 
 Obj.prototype = {
+
     getLable : function(){
         var label = this.f.label.split("\n");
         var objLable = {};
         for (var i = 0; i < label.length; i++) {
             var key = label[i].replace(/^(.*?) *: *(.*)$/g,'$1')
             var value = RegExp.$2;
-            if(key.match(/(URL)|(article)|(CSS)/)){
+            if(key.match(/(URL)|(article)|(CSS)|(width)/)){
                 objLable[key]||objLable[key] = [];
                 objLable[key].push(value);
             }
@@ -90,6 +91,11 @@ Obj.prototype = {
         this.txtClass = editTM.getTxtClass(this.f);
         this.txt = editTM.addTag(this.txtClass);
         this.url = [];
+        this.width = (function(labelWidth,objWidth){
+            if(typeof labelWidth == 'undefined'){return ''};
+            if(labelWidth && (labelWidth[0] == '')){return objWidth;};
+            if(labelWidth && (labelWidth[0] != '')){return labelWidth[0];};
+        })(this.objLable.width,this.w);
         var elm = '\
 <element>\
     <text>\
@@ -99,7 +105,7 @@ Obj.prototype = {
         <align>left</align>\
         <class>'+this.txtClass+'</class>\
         <height></height>\
-        <width></width>\
+        <width>'+this.width+'</width>\
         <x>'+this.x1+'</x>\
         <y>'+this.y1+'</y>\
         <layer></layer>\
@@ -296,7 +302,6 @@ EditTextModule.prototype = {
 
         // msg.alert(blocks.join(''));
         if(this.objLable.CSS){
-            alert('&lt;div style="'+this.objLable.CSS.join('')+'"&gt;'+blocks.join('')+'&lt;/div&gt;')
             return '&lt;div style="'+this.objLable.CSS.join('')+'"&gt;'+blocks.join('')+'&lt;/div&gt;';
         }else{
             return blocks.join('');

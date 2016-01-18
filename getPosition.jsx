@@ -41,13 +41,13 @@ Obj.prototype = {
         var label = this.f.label.split("\n");
         var objLable = {};
         for (var i = 0; i < label.length; i++) {
-            var key = label[i].replace(/^(.*?) *: *(.*)$/g,'$1')
+            var key = label[i].replace(/^(.*?) *: *(.*)$/g,'$1');
             var value = RegExp.$2;
             if(key.match(/(URL)|(article)|(CSS)|(width)/)){
-                objLable[key]||objLable[key] = [];
+                objLable[key] || (objLable[key] = []);
                 objLable[key].push(value);
             }
-        };
+        }
         return objLable;
     },
     mType : function(){
@@ -145,17 +145,17 @@ EditProductModule.prototype = {
         var charcter = new Character();
         var contentParaStyle = textFrame.paragraphs[0].appliedParagraphStyle;
         for (var i = 0; i < textFrame.paragraphs.length; i++) {
-            if(textFrame.paragraphs[i].appliedParagraphStyle.name == 'Price'){// 判定注意
+            if(textFrame.paragraphs[i].appliedParagraphStyle.name.match('PM_ItemPrice')){// 判定注意
                 contentParaStyle = textFrame.paragraphs[i].appliedParagraphStyle;
             }
-        };
+        }
         if(charcter.fontColor(contentParaStyle).toString() =='0,0,0,0'){color = 'W';}
         if(charcter.fontSize(contentParaStyle) == 36)return 'prodStyle3_'+color;
         if(charcter.fontSize(contentParaStyle) == 24)return 'prodStyle2_'+color;
         if(charcter.fontSize(contentParaStyle) == 18)return 'prodStyle1_'+color;
         return 'prodStyle1_' + color;
     }
-}
+};
 
 
 
@@ -254,12 +254,12 @@ EditTextModule.prototype = {
             margineTop : function(){
                 var value = charcter.fontMTop(blockObj.appliedParagraphStyle);
                 value = value && (value+'px');
-                if(value){return 'margin-top: '+value+';'};
+                if(value){return 'margin-top: '+value+';';}
             },
             margineBottom : function(){
                 var value = charcter.fontMBottom(blockObj.appliedParagraphStyle);
                 value = value && (value+'px');
-                if(value){return 'margin-bottom: '+value+';'};
+                if(value){return 'margin-bottom: '+value+';';}
             }
         };
         var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.margineTop(),getCSS.margineBottom()];

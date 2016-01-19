@@ -14,6 +14,7 @@ Character.prototype = {
     fontColor :function(cha){return cha.fillColor.colorValue;},// font-color(CMYK)
     fontMBottom : function(cha){return cha.spaceAfter;},// 段落後のアキ
     fontMTop : function(cha){return cha.spaceBefore;},// 段落前のアキ
+    fontAlign : function(cha){return cha.justification.toString().match('CENTER') || cha.justification.toString().match('RIGHT') || 'LEFT'},// 揃え
 };
 
 function Obj(frame){
@@ -29,8 +30,8 @@ function Obj(frame){
     this.x1 = Math.round(s[1]);
     this.y2 = this.y1 + this.h;
     this.x2 = this.x1 + this.w;
-    this.objLable = this.getLable();//{URL:[], article:[]], CSS:[], width[]}
-    // alert(this.objLable.URL[1]);
+    this.objLable = this.getLable();//{url:[], art:[]], css:[], width[]}
+    // alert(this.objLable.url[1]);
     this.moduleType = this.mType();
     this.xmlElement = this.addEle();
 }
@@ -43,7 +44,7 @@ Obj.prototype = {
         for (var i = 0; i < label.length; i++) {
             var key = label[i].replace(/^(.*?) *: *(.*)$/g,'$1');
             var value = RegExp.$2;
-            if(key.match(/(URL)|(article)|(CSS)|(width)/)){
+            if(key.match(/(url)|(art)|(css)|(width)|(img)|(alt)|(height)/)){
                 objLable[key] || (objLable[key] = []);
                 objLable[key].push(value);
             }
@@ -51,8 +52,9 @@ Obj.prototype = {
         return objLable;
     },
     mType : function(){
-        // if(this.f.label.match(/^article:/)) return 'product';
-        if(this.objLable.article) return 'product';
+        // if(this.f.label.match(/^art/)) return 'product';
+        if(this.objLable.img) return 'image';
+        if(this.objLable.art) return 'product';
         else return 'text';
     },
     addEle : function(){
@@ -62,7 +64,7 @@ Obj.prototype = {
     },
     productModule : function (){
         editPM = new EditProductModule();
-        this.article = this.objLable.article[0];
+        this.art = this.objLable.art[0];
         this.txtClass = editPM.getTxtClass(this.f);
         var elm = '\
 <element>\
@@ -73,7 +75,7 @@ Obj.prototype = {
         <layer>\
         </layer>\
         <link>\
-            <product>'+this.article+'</product>\
+            <product>'+this.art+'</product>\
             <global_article_num>\
             </global_article_num>\
         </link>\
@@ -91,10 +93,14 @@ Obj.prototype = {
         this.txtClass = editTM.getTxtClass(this.f);
         this.txt = editTM.addTag(this.txtClass);
         this.url = [];
+        character = new Character();
+        this.align = character.fontAlign(this.f.paragraphs[0]).toString().toLowerCase();
         this.width = (function(labelWidth,objWidth){
-            if(typeof labelWidth == 'undefined'){return ''};
-            if(labelWidth && (labelWidth[0] == '')){return objWidth;};
-            if(labelWidth && (labelWidth[0] != '')){return labelWidth[0];};
+            if(this.align != 'left' && labelWidth){return labelWidth};
+            if(this.align != 'left'){return objWidth};
+            if(!labelWidth){return ''};
+            if(labelWidth[0] == ''){return objWidth;};
+            if(labelWidth[0] != ''){return labelWidth[0];};
         })(this.objLable.width,this.w);
         var elm = '\
 <element>\
@@ -102,7 +108,7 @@ Obj.prototype = {
         <value>'+this.txt+'</value>\
         <hidden_value>'+this.txt+'</hidden_value>\
         <hidden_display></hidden_display>\
-        <align>left</align>\
+        <align>'+this.align+'</align>\
         <class>'+this.txtClass+'</class>\
         <height></height>\
         <width>'+this.width+'</width>\
@@ -115,11 +121,14 @@ Obj.prototype = {
     return elm;
     },
     imageModule : function (){
+        this.objLable.alt = this.objLable.alt || (this.objLable.alt = ['']);
+        this.objLable.width = this.objLable.width || (this.objLable.width = ['']);
+        this.objLable.height = this.objLable.height || (this.objLable.height = ['']);
         var elm = '\
 <element>\
     <image>\
         <source></source>\
-        <alt></alt>\
+        <alt>'+this.objLable.alt[0].replace(/[\r\n]/,'')+'</alt>\
         <seoText></seoText>\
         <height></height>\
         <width></width>\
@@ -260,7 +269,7 @@ EditTextModule.prototype = {
                 var value = charcter.fontMBottom(blockObj.appliedParagraphStyle);
                 value = value && (value+'px');
                 if(value){return 'margin-bottom: '+value+';';}
-            }
+            },
         };
         var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.margineTop(),getCSS.margineBottom()];
         var tagText = '&lt;div style="'+cssStyle.join('')+'"&gt;'+text+'&lt;/div&gt;';
@@ -301,8 +310,8 @@ EditTextModule.prototype = {
         }
 
         // msg.alert(blocks.join(''));
-        if(this.objLable.CSS){
-            return '&lt;div style="'+this.objLable.CSS.join('')+'"&gt;'+blocks.join('')+'&lt;/div&gt;';
+        if(this.objLable.css){
+            return '&lt;div style="'+this.objLable.css.join('')+'"&gt;'+blocks.join('')+'&lt;/div&gt;';
         }else{
             return blocks.join('');
         }

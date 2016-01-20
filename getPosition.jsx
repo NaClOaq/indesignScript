@@ -51,6 +51,20 @@ Obj.prototype = {
         }
         return objLable;
     },
+    getURL : function(){
+        var tsr = this.f.textStyleRanges;
+        var text = [];
+        var url = this.objLable.url;
+        var array = []
+        for (var i = 0; i < tsr.length; i++) {
+            if(tsr[i].appliedCharacterStyle.name == 'リンクテキスト'){text.push(tsr[i].contents);}
+        };
+        
+        for (var i = 0; i < text.length; i++) {
+            array[i] = {"linkText":text[i],"linkURL":url[i].replace('\r','')};
+        };
+        return array;
+    },
     mType : function(){
         // if(this.f.label.match(/^art/)) return 'product';
         if(this.objLable.img) return 'image';
@@ -92,7 +106,6 @@ Obj.prototype = {
         editTM = new EditTextModule(this.f,this.objLable);
         this.txtClass = editTM.getTxtClass(this.f);
         this.txt = editTM.addTag(this.txtClass);
-        this.url = [];
         character = new Character();
         this.align = character.fontAlign(this.f.paragraphs[0]).toString().toLowerCase();
         this.width = (function(labelWidth,objWidth){
@@ -102,6 +115,19 @@ Obj.prototype = {
             if(labelWidth[0] == ''){return objWidth;};
             if(labelWidth[0] != ''){return labelWidth[0];};
         })(this.objLable.width,this.w);
+        this.links = this.getURL();
+
+        // this.links = [{'linkText':'詳細を見る >','linkURL':'http://www.ikea.com/'},{'linkText':'詳細を見る >','linkURL':'http://www.ikea.com/'}];
+
+        for (var i = 0; i < this.links.length; i++) {
+            this.links[i] = '    <links_module>\
+        <link_text>'+this.links[i].linkText+'</link_text>\
+        <noFollow></noFollow>\
+        <link_url>'+this.links[i].linkURL+'</link_url>\
+        <displaymode></displaymode>\
+    </links_module>';
+        };
+        this.linkElem = this.links.join('\n') && '<link>\n'+this.links.join('\n')+'\n</link>';
         var elm = '\
 <element>\
     <text>\
@@ -115,6 +141,7 @@ Obj.prototype = {
         <x>'+this.x1+'</x>\
         <y>'+this.y1+'</y>\
         <layer></layer>\
+        '+this.linkElem+'\
     </text>\
 </element>\
         ';
@@ -200,8 +227,11 @@ EditTextModule.prototype = {
     },
     addSpan : function(content){
         // 実体参照
-        var text = content.contents.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         var charcter = new Character();
+        var text = content.contents.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        if(content.appliedCharacterStyle.name == 'リンクテキスト'){
+            text = text.replace(/.*/g,'{0}');
+        }
         var contentParaStyle = content.paragraphs[0].appliedParagraphStyle;
         if(charcter.fontStyle(content) != '[なし]'){// 判定注意
             var getCSS = {

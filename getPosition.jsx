@@ -265,7 +265,7 @@ EditTextModule.prototype = {
                 }
             };
             var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.fontDeco()];
-            var tagText = '&lt;span style="' + cssStyle.join('') + '">' + text + '&lt;/span&gt;';
+            var tagText = '&lt;span style="' + cssStyle.join('') + '"&gt;' + text + '&lt;/span&gt;';
 
             tagText = tagText.replace('\r&lt;/span&gt;','&lt;/span&gt;\r');
             if(cssStyle.join('') !== ''){return tagText;}else{return content.contents;}

@@ -57,6 +57,7 @@ Obj.prototype = {
         var url = this.objLable.url;
         var array = []
         for (var i = 0; i < tsr.length; i++) {
+            // alert(tsr.length);
             if(tsr[i].appliedCharacterStyle.name == 'リンクテキスト'){text.push(tsr[i].contents);}
         };
         
@@ -103,6 +104,7 @@ Obj.prototype = {
         var adj = 5;
         this.y1 = Math.round(this.y1)+adj;
         this.x1 = Math.round(this.x1)+adj;
+        this.urlNo = 0;
         editTM = new EditTextModule(this.f,this.objLable);
         this.txtClass = editTM.getTxtClass(this.f);
         this.txt = editTM.addTag(this.txtClass);
@@ -202,6 +204,7 @@ function EditTextModule(textFrame,objLable){
     this.textStyleL = textFrame.textStyleRanges.length;
     this.txt = '';
     this.objLable = objLable;
+    this.urlNo = 0;
 }
 EditTextModule.prototype = {
     getTxtClass : function (textFrame){
@@ -230,7 +233,9 @@ EditTextModule.prototype = {
         var charcter = new Character();
         var text = content.contents.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         if(content.appliedCharacterStyle.name == 'リンクテキスト'){
-            text = text.replace(/.*/g,'{0}');
+            // text = text.replace(/.*/,'{'+this.urlNo+'}');
+            text = text.replace(/.*/,'{0}');
+            this.urlNo++;
         }
         var contentParaStyle = content.paragraphs[0].appliedParagraphStyle;
         if(charcter.fontStyle(content) != '[なし]'){// 判定注意

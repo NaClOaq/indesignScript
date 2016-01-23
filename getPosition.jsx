@@ -108,13 +108,13 @@ Obj.prototype = {
         this.txt = editTM.addTag(this.txtClass);
         character = new Character();
         this.align = character.fontAlign(this.f.paragraphs[0]).toString().toLowerCase();
-        this.width = (function(labelWidth,objWidth){
-            if(this.align != 'left' && labelWidth){return labelWidth};
-            if(this.align != 'left'){return objWidth};
+        this.width = (function(labelWidth,objWidth,align){
+            if(align != 'left' && labelWidth){return labelWidth};
+            if(align != 'left'){return objWidth};
             if(!labelWidth){return ''};
             if(labelWidth[0] == ''){return objWidth;};
             if(labelWidth[0] != ''){return labelWidth[0];};
-        })(this.objLable.width,this.w);
+        })(this.objLable.width,this.w,this.align);
         this.links = this.getURL();
 
         // this.links = [{'linkText':'詳細を見る >','linkURL':'http://www.ikea.com/'},{'linkText':'詳細を見る >','linkURL':'http://www.ikea.com/'}];
@@ -326,7 +326,7 @@ EditTextModule.prototype = {
             // inline結合
             // if(i != 0 && blocksObj[i-1].contents.split('\r').length-1 == 0){
             if(i != 0 && blocksObj[i].appliedParagraphStyle.name == blocksObj[i-1].appliedParagraphStyle.name){
-                blocks[i] = blocks[i-1] + this.addSpan(blocksObj[i]);
+                blocks[i] = blocks[i-1] + blocks[i];
                 blocks[i-1] = '';
             }
             // div処理

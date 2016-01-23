@@ -233,8 +233,8 @@ EditTextModule.prototype = {
         var charcter = new Character();
         var text = content.contents.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         if(content.appliedCharacterStyle.name == 'リンクテキスト'){
-            // text = text.replace(/.*/,'{'+this.urlNo+'}');
-            text = text.replace(/.*/,'{0}');
+            text = text.replace(/.*/,'{'+this.urlNo+'}');
+            alert(content.contents);
             this.urlNo++;
         }
         var contentParaStyle = content.paragraphs[0].appliedParagraphStyle;
@@ -271,9 +271,9 @@ EditTextModule.prototype = {
             };
             var cssStyle = [getCSS.fontWeight(),getCSS.fontSize(),getCSS.lineHeight(),getCSS.fontDeco()];
             var tagText = '&lt;span style="' + cssStyle.join('') + '"&gt;' + text + '&lt;/span&gt;';
-
             tagText = tagText.replace('\r&lt;/span&gt;','&lt;/span&gt;\r');
-            if(cssStyle.join('') !== ''){return tagText;}else{return content.contents;}
+
+            if(cssStyle.join('') !== ''){return tagText;}else{return text}
         } else {return text;}
     },
     addDiv : function(text,blockObj){
@@ -341,7 +341,6 @@ EditTextModule.prototype = {
                 blocks[i] = this.addDiv(blocks[i],blocksObj[i]);
             }
 
-            // alert(blocks[i]);
         }
 
         // msg.alert(blocks.join(''));

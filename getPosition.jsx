@@ -326,7 +326,7 @@ EditTextModule.prototype = {
             // inline結合
             // if(i != 0 && blocksObj[i-1].contents.split('\r').length-1 == 0){
             if(i != 0 && blocksObj[i].appliedParagraphStyle.name == blocksObj[i-1].appliedParagraphStyle.name){
-                blocks[i] = blocks[i-1] + this.addSpan(blocksObj[i]);
+                blocks[i] = blocks[i-1] + blocks[i];
                 blocks[i-1] = '';
             }
             // div処理

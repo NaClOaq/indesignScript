@@ -58,16 +58,15 @@ Obj.prototype = {
         var array = []
         for (var i = 0; i < tsr.length; i++) {
             // alert(tsr.length);
-            if(tsr[i].appliedCharacterStyle.name == 'リンクテキスト'){text.push(tsr[i].contents);}
+            if(tsr[i].appliedCharacterStyle.name == 'リンクテキスト')text.push(tsr[i].contents);
         };
-        
         for (var i = 0; i < text.length; i++) {
+            url[i] = url[i] || '#';
             array[i] = {"linkText":text[i],"linkURL":url[i].replace('\r','')};
         };
         return array;
     },
     mType : function(){
-        // if(this.f.label.match(/^art/)) return 'product';
         if(this.objLable.img) return 'image';
         if(this.objLable.art) return 'product';
         else return 'text';
@@ -79,13 +78,22 @@ Obj.prototype = {
     },
     getWidth : function(){
         var lableWidth = this.objLable.width;
-        // lableWidth = lableWidth ? lableWidth[0] : "auto";
         var objWidth = this.w;
         var width = lableWidth && (parseFloat(lableWidth[0]) || objWidth);
         var align = this.align;
-
         if(align != 'left')return width ||objWidth;
         return width || '';
+    },
+    getDcrValue : function(){
+        var text = this.txt;
+        var url = this.links
+        // var valueLinkTag = text.match(/\{[0-9]\}/g);
+        if(!this.links.length)return text;
+        for (var i = 0; i < this.links.length; i++) {
+            var aTag = "&lt;a href = '"+this.links[i].linkURL+"'  &gt;"+this.links[i].linkText+"&lt;/a&gt;"
+            text = text.replace('{'+i+'}',aTag);
+        };
+        return text;
     },
     productModule : function (){
         editPM = new EditProductModule();
@@ -121,10 +129,8 @@ Obj.prototype = {
         character = new Character();
         this.align = character.fontAlign(this.f.paragraphs[0]).toString().toLowerCase();
         this.width = this.getWidth();
-        this.links = this.getURL();
-
-        // this.links = [{'linkText':'詳細を見る >','linkURL':'http://www.ikea.com/'},{'linkText':'詳細を見る >','linkURL':'http://www.ikea.com/'}];
-
+        this.links = this.getURL();// {"linkText":"","linkURL":""}
+        this.dcrValue = this.getDcrValue();
         for (var i = 0; i < this.links.length; i++) {
             this.links[i] = '    <links_module>\
         <link_text>'+this.links[i].linkText+'</link_text>\
@@ -137,7 +143,7 @@ Obj.prototype = {
         var elm = '\
 <element>\
     <text>\
-        <value>'+this.txt+'</value>\
+        <value>'+this.dcrValue+'</value>\
         <hidden_value>'+this.txt+'</hidden_value>\
         <hidden_display></hidden_display>\
         <align>'+this.align+'</align>\
@@ -374,7 +380,7 @@ Msg.prototype = {
     dialog : function(elm){
         var wObj = app.dialogs.add({ name:"XML" });
         var tmp1 = wObj.dialogColumns.add();
-        var tObj = tmp1.textEditboxes.add({editContents:elm, minWidth:200 });
+        var tObj = tmp1.textEditboxes.add({editContents:elm, minWidth:400 });
         wObj.show();
     },
     alert : function(elm){
@@ -392,10 +398,17 @@ var sel = app.activeDocument.selection;
 var msg = new Msg();
 var obj = [];
 var elm = '';
+
+// for (var i = 0; i < sel.length; i++) {
+//     obj[i] = new Obj(sel[i]);
+//     elm += obj[i].xmlElement;
+// }
+// msg.alert(elm);
+// // msg.dialog(elm);
+
+
 for (var i = 0; i < sel.length; i++) {
     obj[i] = new Obj(sel[i]);
-    // obj[i].addEle();this.xmlElement
-    elm += obj[i].xmlElement;
+    elm += obj[i].dcrValue.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
 }
 msg.alert(elm);
-// msg.dialog(elm);

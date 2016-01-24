@@ -1,6 +1,4 @@
-﻿//(c) 2017 katekari All Rights Reserved.
-// 
-// <<ScriptLabel>>
+﻿// <<ScriptLabel>>
 // url: http://...
 // art: 00000000  #articleNo
 // css: color:red;
@@ -25,13 +23,47 @@ Character.prototype = {
     fontAlign : function(cha){return cha.justification.toString().match('CENTER') || cha.justification.toString().match('RIGHT') || 'LEFT'},// 揃え
 };
 
-
 function DcrRoot(){
-
-    
+    this.dcrUser = 
+    this.dcrId = 
+    this.waLanguege = 
+    this.dcrHeight = 
+    this.dcrExt = 
+};
+DcrRoot.prototype = {
+    elm :function(){
+        var dcrElm = [];
+        var elm = '';
+        for (var i = 0; i < sel.length; i++) {
+            dcrElm[i] = new DcrElm(sel[i],this.dcrId);
+            elm += dcrElm[i].dcrElement;
+        }
+        // autput dcr<value>
+        // for (var i = 0; i < sel.length; i++) {
+        //     dcrElm[i] = new DcrElm(sel[i]);
+        //     elm += dcrElm[i].dcrValue.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+        // }
+        return elm;
+    },
+    root : function(){
+        var root = '<?xml version="1.0" encoding="UTF-8"?>\
+<root xmlns:ext="'+this.dcrExt+'">\
+    <editor>\
+    </editor>\
+    <id>'+this.dcrId+'</id>\
+    <height>'+this.dcrHeight+'</height>\
+    <seo_name>\
+    </seo_name>\
+    <width>5</width>\
+    <hidden_wa>/default/main/Modular_Site/Live_Site/'+this.waLanguege+'_JP/WORKAREA/'+this.dcrUser+'</hidden_wa>\
+    <elements>'+this.elm()+'</elements>\
+</root>\
+    ';
+    return root;
+    }
 };
 
-function DcrElm(frame){
+function DcrElm(frame,dcrId){
     this.f = frame;
     // visibleBounds ボーダーを含む場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
     // geometricBounds　ボーダーを含まない場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
@@ -46,14 +78,13 @@ function DcrElm(frame){
     this.x1 = Math.round(s[1]);
     this.y2 = this.y1 + this.h;
     this.x2 = this.x1 + this.w;
+    this.dcrId = dcrId;
     this.objLable = this.getLable();//{url:[], art:[]], css:[], width[]}
-    // alert(this.objLable.url[1]);
     this.moduleType = this.mType();
     this.dcrElement = this.addEle();
 }
 
 DcrElm.prototype = {
-
     getLable : function(){
         var label = this.f.label.split("\n");
         var objLable = {};
@@ -147,7 +178,7 @@ DcrElm.prototype = {
         this.width = this.getWidth();
         this.links = this.getURL();// {"linkText":"","linkURL":""}
         this.dcrValue = this.getDcrValue();
-        this.dcrHiddenDsiplay = '';
+        this.dcrHiddenDsiplay = '_'+this.dcrId+'_0';
         for (var i = 0; i < this.links.length; i++) {
             this.links[i] = '    <links_module>\
         <link_text>'+this.links[i].linkText+'</link_text>\
@@ -363,10 +394,7 @@ EditTextModule.prototype = {
             }else if(blocksObj[i].appliedParagraphStyle.name != blocksObj[i+1].appliedParagraphStyle.name){
                 blocks[i] = this.addDiv(blocks[i],blocksObj[i]);
             }
-
         }
-
-        // msg.alert(blocks.join(''));
         if(this.objLable.css){
             return '&lt;div style="'+this.objLable.css.join('')+'"&gt;'+blocks.join('')+'&lt;/div&gt;';
         }else{
@@ -375,8 +403,6 @@ EditTextModule.prototype = {
         
     },
 };
-
-
 
 
 function Msg(){}
@@ -397,19 +423,13 @@ Msg.prototype = {
 
 var sel = app.activeDocument.selection;
 var msg = new Msg();
-var dcrElm = [];
-var elm = '';
+var dcrRoot = new DcrRoot();
+msg.alert(dcrRoot.root());
 
 // for (var i = 0; i < sel.length; i++) {
 //     dcrElm[i] = new DcrElm(sel[i]);
-//     elm += dcrElm[i].dcrElement;
+//     elm += dcrElm[i].dcrValue.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
 // }
 // msg.alert(elm);
-// // msg.dialog(elm);
 
-
-for (var i = 0; i < sel.length; i++) {
-    dcrElm[i] = new DcrElm(sel[i]);
-    elm += dcrElm[i].dcrValue.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
-}
-msg.alert(elm);
+//(c) 2017 katekari All Rights Reserved.

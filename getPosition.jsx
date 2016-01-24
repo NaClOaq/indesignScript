@@ -17,7 +17,13 @@ Character.prototype = {
     fontAlign : function(cha){return cha.justification.toString().match('CENTER') || cha.justification.toString().match('RIGHT') || 'LEFT'},// 揃え
 };
 
-function Obj(frame){
+
+function DcrRoot(){
+
+    
+};
+
+function DcrElm(frame){
     this.f = frame;
     var s = frame.visibleBounds;
     this.y1 = s[0];
@@ -33,10 +39,10 @@ function Obj(frame){
     this.objLable = this.getLable();//{url:[], art:[]], css:[], width[]}
     // alert(this.objLable.url[1]);
     this.moduleType = this.mType();
-    this.xmlElement = this.addEle();
+    this.dcrElement = this.addEle();
 }
 
-Obj.prototype = {
+DcrElm.prototype = {
 
     getLable : function(){
         var label = this.f.label.split("\n");
@@ -131,6 +137,7 @@ Obj.prototype = {
         this.width = this.getWidth();
         this.links = this.getURL();// {"linkText":"","linkURL":""}
         this.dcrValue = this.getDcrValue();
+        this.dcrHiddenDsiplay = '';
         for (var i = 0; i < this.links.length; i++) {
             this.links[i] = '    <links_module>\
         <link_text>'+this.links[i].linkText+'</link_text>\
@@ -145,7 +152,7 @@ Obj.prototype = {
     <text>\
         <value>'+this.dcrValue+'</value>\
         <hidden_value>'+this.txt+'</hidden_value>\
-        <hidden_display></hidden_display>\
+        <hidden_display>'+this.dcrHiddenDsiplay+'</hidden_display>\
         <align>'+this.align+'</align>\
         <class>'+this.txtClass+'</class>\
         <height></height>\
@@ -180,9 +187,6 @@ Obj.prototype = {
     return elm;
     },
 };
-
-
-
 
 
 
@@ -365,16 +369,6 @@ EditTextModule.prototype = {
 
 
 
-
-
-
-
-
-
-
-
-
-
 function Msg(){}
 Msg.prototype = {
     dialog : function(elm){
@@ -391,24 +385,21 @@ Msg.prototype = {
     }
 };
 
-
-
-
 var sel = app.activeDocument.selection;
 var msg = new Msg();
-var obj = [];
+var dcrElm = [];
 var elm = '';
 
 // for (var i = 0; i < sel.length; i++) {
-//     obj[i] = new Obj(sel[i]);
-//     elm += obj[i].xmlElement;
+//     dcrElm[i] = new DcrElm(sel[i]);
+//     elm += dcrElm[i].dcrElement;
 // }
 // msg.alert(elm);
 // // msg.dialog(elm);
 
 
 for (var i = 0; i < sel.length; i++) {
-    obj[i] = new Obj(sel[i]);
-    elm += obj[i].dcrValue.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+    dcrElm[i] = new DcrElm(sel[i]);
+    elm += dcrElm[i].dcrValue.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
 }
 msg.alert(elm);

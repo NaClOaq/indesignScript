@@ -77,6 +77,16 @@ Obj.prototype = {
         if(this.moduleType == 'product')return this.productModule();
         if(this.moduleType == 'image')return this.imageModule();
     },
+    getWidth : function(){
+        var lableWidth = this.objLable.width;
+        // lableWidth = lableWidth ? lableWidth[0] : "auto";
+        var objWidth = this.w;
+        var width = lableWidth && (parseFloat(lableWidth[0]) || objWidth);
+        var align = this.align;
+
+        if(align != 'left')return width ||objWidth;
+        return width || '';
+    },
     productModule : function (){
         editPM = new EditProductModule();
         this.art = this.objLable.art[0];
@@ -110,13 +120,7 @@ Obj.prototype = {
         this.txt = editTM.addTag(this.txtClass);
         character = new Character();
         this.align = character.fontAlign(this.f.paragraphs[0]).toString().toLowerCase();
-        this.width = (function(labelWidth,objWidth,align){
-            if(align != 'left' && labelWidth){return labelWidth};
-            if(align != 'left'){return objWidth};
-            if(!labelWidth){return ''};
-            if(labelWidth[0] == ''){return objWidth;};
-            if(labelWidth[0] != ''){return labelWidth[0];};
-        })(this.objLable.width,this.w,this.align);
+        this.width = this.getWidth();
         this.links = this.getURL();
 
         // this.links = [{'linkText':'詳細を見る >','linkURL':'http://www.ikea.com/'},{'linkText':'詳細を見る >','linkURL':'http://www.ikea.com/'}];
@@ -212,7 +216,7 @@ EditTextModule.prototype = {
         var contentParaStyle = textFrame.paragraphs[0].appliedParagraphStyle;
         var fontSize = charcter.fontSize(contentParaStyle);
         var color = 'Gray';
-        if(charcter.fontColor(contentParaStyle).toString() =='0,0,0,0'){color = 'White';}
+        if (charcter.fontColor(contentParaStyle).toString() =='0,0,0,0'){color = 'White';}
         if (fontSize == 18 )return 'headOne' + color;
         if (fontSize == 24 )return 'headTwo' + color;
         if (fontSize == 36 )return 'headThree' + color;
@@ -234,7 +238,6 @@ EditTextModule.prototype = {
         var text = content.contents.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         if(content.appliedCharacterStyle.name == 'リンクテキスト'){
             text = text.replace(/.*/,'{'+this.urlNo+'}');
-            alert(content.contents);
             this.urlNo++;
         }
         var contentParaStyle = content.paragraphs[0].appliedParagraphStyle;

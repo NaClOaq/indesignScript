@@ -1,5 +1,13 @@
-﻿// visibleBounds ボーダーを含む場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
-// geometricBounds　ボーダーを含まない場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
+﻿//(c) 2017 katekari All Rights Reserved.
+// 
+// <<ScriptLabel>>
+// url: http://...
+// art: 00000000  #articleNo
+// css: color:red;
+// width: 300  #insert dcr width
+// alt: imageAltText
+// img: imagePath
+
 function Character(){
 }
 Character.prototype = {
@@ -25,6 +33,8 @@ function DcrRoot(){
 
 function DcrElm(frame){
     this.f = frame;
+    // visibleBounds ボーダーを含む場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
+    // geometricBounds　ボーダーを含まない場合[左上のy座標、左上のx座標、右下のy座標、右下のx座標]
     var s = frame.visibleBounds;
     this.y1 = s[0];
     this.x1 = s[1];

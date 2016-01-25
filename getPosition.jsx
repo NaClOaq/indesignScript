@@ -29,7 +29,7 @@ function DcrRoot(){
     this.waLanguege = 
     this.dcrHeight = 
     this.dcrExt = 
-};
+}
 DcrRoot.prototype = {
     elm :function(){
         var dcrElm = [];
@@ -54,7 +54,7 @@ DcrRoot.prototype = {
     <height>'+this.dcrHeight+'</height>\
     <seo_name>\
     </seo_name>\
-    <width>5</width>\
+    <width></width>\
     <hidden_wa>/default/main/Modular_Site/Live_Site/'+this.waLanguege+'_JP/WORKAREA/'+this.dcrUser+'</hidden_wa>\
     <elements>'+this.elm()+'</elements>\
 </root>\
@@ -86,7 +86,7 @@ function DcrElm(frame,dcrId){
 
 DcrElm.prototype = {
     getLable : function(){
-        var label = this.f.label.split("\n");
+        var label = this.f.label.split(/[\r\n]/);
         var objLable = {};
         for (var i = 0; i < label.length; i++) {
             var key = label[i].replace(/^(.*?) *: *(.*)$/g,'$1');
@@ -105,7 +105,7 @@ DcrElm.prototype = {
         var array = []
         for (var i = 0; i < tsr.length; i++) {
             // alert(tsr.length);
-            if(tsr[i].appliedCharacterStyle.name == 'リンクテキスト')text.push(tsr[i].contents);
+            if(tsr[i].appliedCharacterStyle.name == 'link（blue）')text.push(tsr[i].contents);
         };
         for (var i = 0; i < text.length; i++) {
             url[i] = url[i] || '#';
@@ -191,8 +191,8 @@ DcrElm.prototype = {
         var elm = '\
 <element>\
     <text>\
-        <value>'+this.dcrValue+'</value>\
-        <hidden_value>'+this.txt+'</hidden_value>\
+        <value>'+this.txt+'</value>\
+        <hidden_value>'+this.dcrValue+'</hidden_value>\
         <hidden_display>'+this.dcrHiddenDsiplay+'</hidden_display>\
         <align>'+this.align+'</align>\
         <class>'+this.txtClass+'</class>\
@@ -287,7 +287,7 @@ EditTextModule.prototype = {
         // 実体参照
         var charcter = new Character();
         var text = content.contents.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        if(content.appliedCharacterStyle.name == 'リンクテキスト'){
+        if(content.appliedCharacterStyle.name == 'link（blue）'){
             text = text.replace(/.*/,'{'+this.urlNo+'}');
             this.urlNo++;
         }

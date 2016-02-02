@@ -48,8 +48,7 @@ DcrRoot.prototype = {
     root : function(){
         var root = '<?xml version="1.0" encoding="UTF-8"?>\
 <root xmlns:ext="'+this.dcrExt+'">\
-    <editor>\
-    </editor>\
+    <editor/>\
     <id>'+this.dcrId+'</id>\
     <height>'+this.dcrHeight+'</height>\
     <seo_name>\

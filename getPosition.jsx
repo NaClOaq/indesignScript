@@ -168,7 +168,7 @@ DcrElm.prototype = {
     textModule : function(){
         var adj = 5;
         this.y1 = Math.round(this.y1)+adj;
-        this.x1 = Math.round(this.x1)+adj;
+        this.x1 = Math.round(this.x1);
         this.urlNo = 0;
         editTM = new EditTextModule(this.f,this.objLable);
         this.txtClass = editTM.getTxtClass(this.f);
